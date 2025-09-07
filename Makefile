@@ -19,8 +19,8 @@ up: ## Subir todos os serviços
 	@echo "$(GREEN)Subindo serviços...$(NC)"
 	docker-compose up -d
 	@echo "$(GREEN)✅ Serviços iniciados!$(NC)"
-	@echo "API: http://localhost:8080"
-	@echo "Health: http://localhost:8080/health"
+	@echo "API: http://localhost:8082"
+	@echo "Health: http://localhost:8082/health"
 
 down: ## Parar todos os serviços
 	@echo "$(YELLOW)Parando serviços...$(NC)"
@@ -51,7 +51,7 @@ status: ## Ver status dos serviços
 
 health: ## Verificar saúde da API
 	@echo "$(GREEN)Verificando saúde da API...$(NC)"
-	@curl -s http://localhost:8080/health | jq . || echo "$(RED)API não está respondendo$(NC)"
+	@curl -s http://localhost:8082/health | jq . || echo "$(RED)API não está respondendo$(NC)"
 
 backup-db: ## Fazer backup do banco de dados
 	@echo "$(GREEN)Fazendo backup do banco...$(NC)"
@@ -94,7 +94,7 @@ docker-clean: ## Limpar tudo do Docker (CUIDADO!)
 quick-test: up ## Teste rápido da API
 	@echo "$(GREEN)Testando API...$(NC)"
 	@sleep 5
-	@curl -s http://localhost:8080/health | jq . && echo "$(GREEN)✅ API funcionando!$(NC)" || echo "$(RED)❌ API com problemas$(NC)"
+	@curl -s http://localhost:8082/health | jq . && echo "$(GREEN)✅ API funcionando!$(NC)" || echo "$(RED)❌ API com problemas$(NC)"
 
 # Comandos de desenvolvimento
 dev-logs: ## Ver logs em tempo real durante desenvolvimento

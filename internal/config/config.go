@@ -20,12 +20,12 @@ type Config struct {
 func Load() *Config {
 	return &Config{
 		DBHost:      getEnv("DB_HOST", "localhost"),
-		DBPort:      getEnv("DB_PORT", "5432"),
+		DBPort:      getEnv("DB_PORT", "5433"),
 		DBUser:      getEnv("DB_USER", "postgres"),
 		DBPassword:  getEnv("DB_PASSWORD", "postgres"),
 		DBName:      getEnv("DB_NAME", "multiupload"),
 		JWTSecret:   getEnv("JWT_SECRET", "your-secret-key"),
-		Port:        getEnv("PORT", "8080"),
+		Port:        getEnv("PORT", "8082"),
 		UploadPath:  getEnv("UPLOAD_PATH", "./uploads"),
 		Environment: getEnv("ENVIRONMENT", "development"),
 	}

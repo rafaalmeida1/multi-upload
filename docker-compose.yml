@@ -37,7 +37,7 @@ services:
     volumes:
       - uploads_data:/app/uploads
     ports:
-      - "8080:8080"
+      - "8082:8080"
     networks:
       - multiupload_network
     depends_on:
@@ -45,7 +45,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/health"]
       interval: 30s
       timeout: 10s
       retries: 5

@@ -41,7 +41,7 @@ RUN mkdir -p /app/uploads && \
 USER appuser
 
 # Expor porta
-EXPOSE 8080
+EXPOSE 8082
 
 # Comando para executar a aplicação
 CMD ["./main"]
