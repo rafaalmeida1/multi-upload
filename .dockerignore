@@ -1,0 +1,29 @@
+# Arquivos Git
+.git
+.gitignore
+
+# Arquivos de documentação
+README.md
+*.md
+
+# Arquivos de configuração local
+.env
+config.env
+
+# Diretórios de build e cache
+uploads/
+tmp/
+.tmp/
+
+# Arquivos de log
+*.log
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
