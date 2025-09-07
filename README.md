@@ -49,12 +49,12 @@ Edite o arquivo `config.env` se necessário (valores padrão já configurados):
 
 ```env
 DB_HOST=postgres
-DB_PORT=5432
+DB_PORT=5433
 DB_USER=postgres
 DB_PASSWORD=postgres123
 DB_NAME=multiupload
 JWT_SECRET=seu_jwt_secret_super_seguro_aqui_mude_em_producao
-PORT=8080
+PORT=8082
 UPLOAD_PATH=/app/uploads
 ```
 
@@ -65,7 +65,7 @@ UPLOAD_PATH=/app/uploads
 docker-compose up -d
 
 # Verificar se está funcionando
-curl http://localhost:8080/health
+curl http://localhost:8082/health
 ```
 
 ### 4. Criar usuário padrão
@@ -86,7 +86,7 @@ Ou localmente (se tiver Go instalado):
 ### Base URL
 
 ```
-http://localhost:8080/api/v1
+http://localhost:8082/api/v1
 ```
 
 ### Autenticação
@@ -370,7 +370,7 @@ GET /gallery?page=1&page_size=10&type=image&order_by=created_at_desc
 **Para usar as imagens/vídeos:**
 ```bash
 # URL completa para visualizar uma mídia
-http://localhost:8080/api/v1/files/2024/01/01/uuid-name.jpg
+http://localhost:8082/api/v1/files/2024/01/01/uuid-name.jpg
 ```
 
 ---
@@ -510,7 +510,7 @@ ENVIRONMENT=production
 Para dúvidas ou problemas:
 
 1. Verifique os logs: `docker-compose logs -f`
-2. Teste a conexão: `curl http://localhost:8080/health`
+2. Teste a conexão: `curl http://localhost:8082/health`
 3. Verifique os volumes: `docker volume ls`
 
 ---
