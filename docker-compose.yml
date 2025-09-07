@@ -11,7 +11,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
     networks:
       - multiupload_network
     restart: unless-stopped
@@ -26,7 +26,7 @@ services:
     container_name: multiupload_api
     environment:
       DB_HOST: postgres
-      DB_PORT: 5432
+      DB_PORT: 5433
       DB_USER: postgres
       DB_PASSWORD: postgres123
       DB_NAME: multiupload
