@@ -31,6 +31,7 @@ type MediaListResponse struct {
 	Page       int     `json:"page"`
 	PageSize   int     `json:"page_size"`
 	TotalPages int     `json:"total_pages"`
+	Message    string  `json:"message"`
 }
 
 type UploadResponse struct {

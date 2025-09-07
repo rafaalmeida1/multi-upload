@@ -164,6 +164,7 @@ func (h *MediaHandler) List(c *gin.Context) {
 		Page:       page,
 		PageSize:   pageSize,
 		TotalPages: totalPages,
+		Message:    "Arquivos listados com sucesso",
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -203,6 +204,7 @@ func (h *MediaHandler) ListPublic(c *gin.Context) {
 		Page:       page,
 		PageSize:   pageSize,
 		TotalPages: totalPages,
+		Message:    "Arquivos listados com sucesso",
 	}
 
 	c.JSON(http.StatusOK, response)
