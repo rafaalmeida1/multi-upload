@@ -63,9 +63,11 @@ func (r *MediaRepository) List(userID int, page, pageSize int, mediaType string,
 		args = append(args, mediaType)
 	}
 
-	// Construir ORDER BY
-	orderClause := " ORDER BY sort_order ASC"
+	// Construir ORDER BY (padrão: mais novos primeiro)
+	orderClause := " ORDER BY created_at DESC"
 	switch strings.ToLower(orderBy) {
+	case "sort_order":
+		orderClause = " ORDER BY sort_order ASC"
 	case "created_at_desc":
 		orderClause = " ORDER BY created_at DESC"
 	case "created_at_asc":
@@ -132,9 +134,11 @@ func (r *MediaRepository) ListPublic(page, pageSize int, mediaType string, order
 		args = append(args, mediaType)
 	}
 
-	// Construir ORDER BY
-	orderClause := " ORDER BY sort_order ASC"
+	// Construir ORDER BY (padrão: mais novos primeiro)
+	orderClause := " ORDER BY created_at DESC"
 	switch strings.ToLower(orderBy) {
+	case "sort_order":
+		orderClause = " ORDER BY sort_order ASC"
 	case "created_at_desc":
 		orderClause = " ORDER BY created_at DESC"
 	case "created_at_asc":

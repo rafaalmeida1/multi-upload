@@ -58,6 +58,9 @@ func main() {
 
 	router := gin.Default()
 
+	// Configurar limite de upload para arquivos grandes (1GB)
+	router.MaxMultipartMemory = 1024 << 20 // 1GB
+
 	// Middleware global
 	router.Use(middleware.CORS())
 	router.Use(middleware.RequestLogger())

@@ -155,7 +155,7 @@ Faz upload de um arquivo (imagem ou vídeo).
 **Tipos suportados:**
 - Imagens: JPG, PNG, GIF, WebP, etc.
 - Vídeos: MP4, AVI, MOV, etc.
-- Tamanho máximo: 100MB
+- Tamanho máximo: 1GB (sem limitação para vídeos grandes)
 
 **Response (201):**
 ```json
@@ -186,8 +186,8 @@ Lista arquivos com paginação e filtros.
 - `page_size` (int): Itens por página (padrão: 20, máx: 100)
 - `type` (string): Filtrar por tipo (`image` ou `video`)
 - `order_by` (string): Ordenação
-  - `sort_order` (padrão): Ordem personalizada
-  - `created_at_desc`: Mais recentes primeiro
+  - `created_at_desc` (padrão): Mais recentes primeiro
+  - `sort_order`: Ordem personalizada
   - `created_at_asc`: Mais antigos primeiro
   - `filename_asc`: Nome A-Z
   - `filename_desc`: Nome Z-A
@@ -196,7 +196,7 @@ Lista arquivos com paginação e filtros.
 
 **Exemplos:**
 ```bash
-GET /media?page=1&page_size=10&type=image&order_by=created_at_desc
+GET /media?page=1&page_size=10&type=image&order_by=sort_order
 ```
 
 **Response (200):**
@@ -329,8 +329,8 @@ Lista todas as mídias publicamente (sem autenticação necessária). Ideal para
 - `page_size` (int): Itens por página (padrão: 20, máx: 100)
 - `type` (string): Filtrar por tipo (`image` ou `video`)
 - `order_by` (string): Ordenação
-  - `sort_order` (padrão): Ordem personalizada
-  - `created_at_desc`: Mais recentes primeiro
+  - `created_at_desc` (padrão): Mais recentes primeiro
+  - `sort_order`: Ordem personalizada
   - `created_at_asc`: Mais antigos primeiro
   - `filename_asc`: Nome A-Z
   - `filename_desc`: Nome Z-A
@@ -339,7 +339,7 @@ Lista todas as mídias publicamente (sem autenticação necessária). Ideal para
 
 **Exemplos:**
 ```bash
-GET /gallery?page=1&page_size=10&type=image&order_by=created_at_desc
+GET /gallery?page=1&page_size=10&type=image&order_by=sort_order
 ```
 
 **Response (200):**
@@ -470,7 +470,7 @@ A aplicação usa volumes nomeados para persistência:
 - Todas as rotas protegidas por JWT
 - Senhas criptografadas com bcrypt
 - Validação de tipos de arquivo
-- Limite de tamanho de upload (100MB)
+- Suporte a vídeos grandes (até 1GB)
 - Headers CORS configurados
 - Usuários isolados (cada usuário vê apenas seus arquivos)
 

@@ -38,7 +38,7 @@ func (h *MediaHandler) Upload(c *gin.Context) {
 	}
 
 	// Parse multipart form
-	err := c.Request.ParseMultipartForm(32 << 20) // 32MB max
+	err := c.Request.ParseMultipartForm(1024 << 20) // 1GB max
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao processar formulário"})
 		return
@@ -61,14 +61,7 @@ func (h *MediaHandler) Upload(c *gin.Context) {
 		return
 	}
 
-	// Validar tamanho do arquivo (100MB max)
-	const maxSize = 100 * 1024 * 1024
-	if header.Size > maxSize {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Arquivo muito grande. Tamanho máximo: 100MB",
-		})
-		return
-	}
+	// Sem limitação de tamanho para vídeos grandes
 
 	// Gerar nome único para o arquivo
 	fileExt := filepath.Ext(header.Filename)
@@ -146,7 +139,7 @@ func (h *MediaHandler) List(c *gin.Context) {
 
 	// Filtros
 	mediaType := c.Query("type")
-	orderBy := c.DefaultQuery("order_by", "sort_order")
+	orderBy := c.DefaultQuery("order_by", "created_at_desc")
 
 	// Buscar dados
 	medias, total, err := h.mediaRepo.List(userID, page, pageSize, mediaType, orderBy)
@@ -186,7 +179,7 @@ func (h *MediaHandler) ListPublic(c *gin.Context) {
 
 	// Filtros
 	mediaType := c.Query("type")
-	orderBy := c.DefaultQuery("order_by", "sort_order")
+	orderBy := c.DefaultQuery("order_by", "created_at_desc")
 
 	// Buscar dados publicamente
 	medias, total, err := h.mediaRepo.ListPublic(page, pageSize, mediaType, orderBy)
@@ -295,7 +288,7 @@ func (h *MediaHandler) Replace(c *gin.Context) {
 	}
 
 	// Parse multipart form
-	err = c.Request.ParseMultipartForm(32 << 20) // 32MB max
+	err = c.Request.ParseMultipartForm(1024 << 20) // 1GB max
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao processar formulário"})
 		return
