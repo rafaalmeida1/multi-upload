@@ -139,7 +139,7 @@ func (h *MediaHandler) List(c *gin.Context) {
 
 	// Filtros
 	mediaType := c.Query("type")
-	orderBy := c.DefaultQuery("order_by", "created_at_desc")
+	orderBy := c.DefaultQuery("order_by", "sort_order")
 
 	// Buscar dados
 	medias, total, err := h.mediaRepo.List(userID, page, pageSize, mediaType, orderBy)
@@ -179,7 +179,7 @@ func (h *MediaHandler) ListPublic(c *gin.Context) {
 
 	// Filtros
 	mediaType := c.Query("type")
-	orderBy := c.DefaultQuery("order_by", "created_at_desc")
+	orderBy := c.DefaultQuery("order_by", "sort_order")
 
 	// Buscar dados publicamente
 	medias, total, err := h.mediaRepo.ListPublic(page, pageSize, mediaType, orderBy)

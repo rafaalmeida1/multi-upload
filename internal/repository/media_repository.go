@@ -15,16 +15,36 @@ func NewMediaRepository(db *sql.DB) *MediaRepository {
 	return &MediaRepository{db: db}
 }
 
-// Create cria um novo registro de mídia
+// Create cria um novo registro de mídia (sempre em primeiro lugar)
 func (r *MediaRepository) Create(media *models.Media) error {
+	// Iniciar transação para garantir consistência
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Incrementar sort_order de todos os arquivos existentes do usuário
+	_, err = tx.Exec(`UPDATE media SET sort_order = sort_order + 1 WHERE user_id = $1`, media.UserID)
+	if err != nil {
+		return err
+	}
+
+	// Inserir novo arquivo com sort_order = 1 (primeiro lugar)
 	query := `INSERT INTO media (user_id, filename, original_name, file_path, file_size, mime_type, media_type, sort_order)
-			  VALUES ($1, $2, $3, $4, $5, $6, $7, COALESCE((SELECT MAX(sort_order) + 1 FROM media WHERE user_id = $1), 1))
+			  VALUES ($1, $2, $3, $4, $5, $6, $7, 1)
 			  RETURNING id, sort_order, created_at, updated_at`
 
-	return r.db.QueryRow(query, media.UserID, media.Filename, media.OriginalName,
+	err = tx.QueryRow(query, media.UserID, media.Filename, media.OriginalName,
 		media.FilePath, media.FileSize, media.MimeType, media.MediaType).Scan(
 		&media.ID, &media.SortOrder, &media.CreatedAt, &media.UpdatedAt,
 	)
+	if err != nil {
+		return err
+	}
+
+	// Commit da transação
+	return tx.Commit()
 }
 
 // GetByID busca mídia por ID
@@ -63,8 +83,8 @@ func (r *MediaRepository) List(userID int, page, pageSize int, mediaType string,
 		args = append(args, mediaType)
 	}
 
-	// Construir ORDER BY (padrão: mais novos primeiro)
-	orderClause := " ORDER BY created_at DESC"
+	// Construir ORDER BY (padrão: ordem personalizada - novos uploads ficam em primeiro)
+	orderClause := " ORDER BY sort_order ASC"
 	switch strings.ToLower(orderBy) {
 	case "sort_order":
 		orderClause = " ORDER BY sort_order ASC"
@@ -134,8 +154,8 @@ func (r *MediaRepository) ListPublic(page, pageSize int, mediaType string, order
 		args = append(args, mediaType)
 	}
 
-	// Construir ORDER BY (padrão: mais novos primeiro)
-	orderClause := " ORDER BY created_at DESC"
+	// Construir ORDER BY (padrão: ordem personalizada - novos uploads ficam em primeiro)
+	orderClause := " ORDER BY sort_order ASC"
 	switch strings.ToLower(orderBy) {
 	case "sort_order":
 		orderClause = " ORDER BY sort_order ASC"

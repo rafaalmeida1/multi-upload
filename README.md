@@ -17,6 +17,7 @@ Uma API completa e escalável para gerenciamento de imagens e vídeos, desenvolv
 - ✅ Atualização de arquivos (substituição)
 - ✅ Exclusão de arquivos
 - ✅ Sistema de ordenação personalizada
+- ✅ Novos uploads automaticamente em primeiro lugar
 - ✅ Autenticação JWT
 - ✅ Persistência de dados com Docker volumes
 - ✅ API extremamente rápida e otimizada
@@ -186,8 +187,8 @@ Lista arquivos com paginação e filtros.
 - `page_size` (int): Itens por página (padrão: 20, máx: 100)
 - `type` (string): Filtrar por tipo (`image` ou `video`)
 - `order_by` (string): Ordenação
-  - `created_at_desc` (padrão): Mais recentes primeiro
-  - `sort_order`: Ordem personalizada
+  - `sort_order` (padrão): Ordem personalizada (novos uploads ficam em primeiro)
+  - `created_at_desc`: Mais recentes primeiro
   - `created_at_asc`: Mais antigos primeiro
   - `filename_asc`: Nome A-Z
   - `filename_desc`: Nome Z-A
@@ -196,7 +197,7 @@ Lista arquivos com paginação e filtros.
 
 **Exemplos:**
 ```bash
-GET /media?page=1&page_size=10&type=image&order_by=sort_order
+GET /media?page=1&page_size=10&type=image&order_by=created_at_desc
 ```
 
 **Response (200):**
@@ -329,8 +330,8 @@ Lista todas as mídias publicamente (sem autenticação necessária). Ideal para
 - `page_size` (int): Itens por página (padrão: 20, máx: 100)
 - `type` (string): Filtrar por tipo (`image` ou `video`)
 - `order_by` (string): Ordenação
-  - `created_at_desc` (padrão): Mais recentes primeiro
-  - `sort_order`: Ordem personalizada
+  - `sort_order` (padrão): Ordem personalizada (novos uploads ficam em primeiro)
+  - `created_at_desc`: Mais recentes primeiro
   - `created_at_asc`: Mais antigos primeiro
   - `filename_asc`: Nome A-Z
   - `filename_desc`: Nome Z-A
@@ -339,7 +340,7 @@ Lista todas as mídias publicamente (sem autenticação necessária). Ideal para
 
 **Exemplos:**
 ```bash
-GET /gallery?page=1&page_size=10&type=image&order_by=sort_order
+GET /gallery?page=1&page_size=10&type=image&order_by=created_at_desc
 ```
 
 **Response (200):**
