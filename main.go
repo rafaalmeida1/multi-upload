@@ -26,9 +26,10 @@ func main() {
 		return
 	}
 
-	// Carregar variáveis de ambiente
+	// Carregar variáveis de ambiente (opcional, prioriza variáveis do sistema)
 	if err := godotenv.Load("config.env"); err != nil {
-		log.Printf("Aviso: arquivo config.env não encontrado: %v", err)
+		// Em produção com Docker, as variáveis já estão definidas
+		log.Printf("Aviso: arquivo config.env não encontrado, usando variáveis de ambiente do sistema: %v", err)
 	}
 
 	// Configurar aplicação
@@ -79,9 +80,10 @@ func main() {
 func createUserCommand() {
 	fmt.Println("=== Script de Criação de Usuário ===")
 
-	// Carregar variáveis de ambiente
+	// Carregar variáveis de ambiente (opcional, prioriza variáveis do sistema)
 	if err := godotenv.Load("config.env"); err != nil {
-		log.Printf("Aviso: arquivo config.env não encontrado: %v", err)
+		// Em produção com Docker, as variáveis já estão definidas
+		log.Printf("Aviso: arquivo config.env não encontrado, usando variáveis de ambiente do sistema: %v", err)
 	}
 
 	// Configurar aplicação

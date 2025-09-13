@@ -7,6 +7,7 @@ import (
 	"multi-upload-api/internal/handlers"
 	"multi-upload-api/internal/middleware"
 	"multi-upload-api/internal/repository"
+	"multi-upload-api/internal/services"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,6 +15,7 @@ import (
 func SetupRoutes(router *gin.Engine, db *sql.DB, cfg *config.Config) {
 	// Inicializar serviços
 	jwtService := auth.NewJWTService(cfg.JWTSecret)
+	emailService := services.NewEmailService(cfg)
 
 	// Inicializar repositórios
 	userRepo := repository.NewUserRepository(db)
@@ -22,12 +24,16 @@ func SetupRoutes(router *gin.Engine, db *sql.DB, cfg *config.Config) {
 	// Inicializar handlers
 	authHandler := handlers.NewAuthHandler(userRepo, jwtService)
 	mediaHandler := handlers.NewMediaHandler(mediaRepo, cfg.UploadPath)
+	contactHandler := handlers.NewContactHandler(emailService)
 
 	// Rotas públicas
 	public := router.Group("/api/v1")
 	{
 		// Autenticação
 		public.POST("/login", authHandler.Login)
+
+		// Contato
+		public.POST("/contact", contactHandler.SendContact)
 
 		// Servir arquivos (público para visualização)
 		public.GET("/files/*filepath", mediaHandler.Serve)

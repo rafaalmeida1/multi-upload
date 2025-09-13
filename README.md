@@ -46,7 +46,7 @@ cd multi-upload-project
 
 ### 2. Configure as variáveis de ambiente
 
-Edite o arquivo `config.env` se necessário (valores padrão já configurados):
+Edite o arquivo `.env` se necessário (valores padrão já configurados):
 
 ```env
 DB_HOST=postgres

@@ -24,16 +24,11 @@ services:
   api:
     build: .
     container_name: multiupload_api
+    env_file:
+      - .env
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres123
-      DB_NAME: multiupload
-      JWT_SECRET: seu_jwt_secret_super_seguro_aqui_mude_em_producao_123456789
-      PORT: 8082
-      UPLOAD_PATH: /app/uploads
-      ENVIRONMENT: production
     volumes:
       - uploads_data:/app/uploads
     ports:

@@ -1,0 +1,17 @@
+# Arquivos de ambiente
+.env
+config.env
+
+# Logs
+*.log
+
+# Arquivos temporários
+*.tmp
+*.temp
+
+# Arquivos de build
+main
+*.exe
+
+# Diretórios
+uploads/
