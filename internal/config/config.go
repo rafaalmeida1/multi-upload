@@ -35,12 +35,12 @@ func Load() *Config {
 		Port:         getEnv("PORT", "8082"),
 		UploadPath:   getEnv("UPLOAD_PATH", "./uploads"),
 		Environment:  getEnv("ENVIRONMENT", "development"),
-		SMTPHost:     getEnv("SMTP_HOST", "smtp-relay.brevo.com"),
+		SMTPHost:     getEnv("SMTP_HOST", "smtp.sendgrid.net"),
 		SMTPPort:     getEnv("SMTP_PORT", "587"),
 		SMTPUsername: getEnv("SMTP_USERNAME", ""),
 		SMTPPassword: getEnv("SMTP_PASSWORD", ""),
-		ContactEmail: getEnv("CONTACT_EMAIL", "rafaprof312@gmail.com"),
-		FromEmail:    getEnv("FROM_EMAIL", "noreply@jamguindastes.com.br"),
+		ContactEmail: getEnv("CONTACT_EMAIL", "comercialjam@zohomail.com"),
+		FromEmail:    getEnv("FROM_EMAIL", "comercialjam@zohomail.com"),
 		FromName:     getEnv("FROM_NAME", "JAM Locação de Guindastes"),
 	}
 }
