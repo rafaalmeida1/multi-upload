@@ -30,8 +30,6 @@ services:
       - uploads_data:/app/uploads
     ports:
       - "8082:8082"
-    networks:
-      - multiupload_network
     depends_on:
       postgres:
         condition: service_healthy
