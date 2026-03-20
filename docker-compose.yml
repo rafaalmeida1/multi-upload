@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     container_name: multiupload_postgres
     environment:
       POSTGRES_USER: postgres
@@ -12,13 +12,10 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
-    networks:
-      - multiupload_network
-    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 30s
-      timeout: 10s
+      test: ["CMD-SHELL", "pg_isready -U missa"]
+      interval: 5s
+      timeout: 5s
       retries: 5
 
   api:
@@ -51,7 +48,3 @@ volumes:
     driver: local
   uploads_data:
     driver: local
-
-networks:
-  multiupload_network:
-    driver: bridge
