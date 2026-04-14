@@ -26,11 +26,11 @@ type Config struct {
 
 func Load() *Config {
 	return &Config{
-		DBHost:       getEnv("DB_HOST", "localhost"),
-		DBPort:       getEnv("DB_PORT", "5433"),
-		DBUser:       getEnv("DB_USER", "postgres"),
-		DBPassword:   getEnv("DB_PASSWORD", "postgres"),
-		DBName:       getEnv("DB_NAME", "multiupload"),
+		DBHost:       getEnvAny([]string{"DB_HOST", "POSTGRES_HOST"}, "localhost"),
+		DBPort:       getEnvAny([]string{"DB_PORT", "POSTGRES_PORT"}, "5432"),
+		DBUser:       getEnvAny([]string{"DB_USER", "POSTGRES_USER"}, "postgres"),
+		DBPassword:   getEnvAny([]string{"DB_PASSWORD", "POSTGRES_PASSWORD"}, "postgres"),
+		DBName:       getEnvAny([]string{"DB_NAME", "POSTGRES_DB"}, "multiupload"),
 		JWTSecret:    getEnv("JWT_SECRET", "your-secret-key"),
 		Port:         getEnv("PORT", "8082"),
 		UploadPath:   getEnv("UPLOAD_PATH", "./uploads"),
@@ -53,6 +53,15 @@ func (c *Config) DatabaseURL() string {
 func getEnv(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
+	}
+	return defaultValue
+}
+
+func getEnvAny(keys []string, defaultValue string) string {
+	for _, key := range keys {
+		if value := os.Getenv(key); value != "" {
+			return value
+		}
 	}
 	return defaultValue
 }
