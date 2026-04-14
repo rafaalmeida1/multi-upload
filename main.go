@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"log"
 	"multi-upload-api/internal/api"
@@ -19,6 +20,16 @@ import (
 	"golang.org/x/term"
 )
 
+func loadOptionalEnvFiles(files ...string) {
+	for _, file := range files {
+		if err := godotenv.Load(file); err == nil {
+			return
+		} else if !errors.Is(err, os.ErrNotExist) {
+			log.Printf("Aviso: não foi possível carregar %s: %v", file, err)
+		}
+	}
+}
+
 func main() {
 	// Verificar se é comando de criação de usuário
 	if len(os.Args) > 1 && os.Args[1] == "create-user" {
@@ -27,10 +38,7 @@ func main() {
 	}
 
 	// Carregar variáveis de ambiente (opcional, prioriza variáveis do sistema)
-	if err := godotenv.Load("config.env"); err != nil {
-		// Em produção com Docker, as variáveis já estão definidas
-		log.Printf("Aviso: arquivo config.env não encontrado, usando variáveis de ambiente do sistema: %v", err)
-	}
+	loadOptionalEnvFiles("config.env", ".env")
 
 	// Configurar aplicação
 	cfg := config.Load()
@@ -81,10 +89,7 @@ func createUserCommand() {
 	fmt.Println("=== Script de Criação de Usuário ===")
 
 	// Carregar variáveis de ambiente (opcional, prioriza variáveis do sistema)
-	if err := godotenv.Load("config.env"); err != nil {
-		// Em produção com Docker, as variáveis já estão definidas
-		log.Printf("Aviso: arquivo config.env não encontrado, usando variáveis de ambiente do sistema: %v", err)
-	}
+	loadOptionalEnvFiles("config.env", ".env")
 
 	// Configurar aplicação
 	cfg := config.Load()
