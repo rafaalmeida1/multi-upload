@@ -13,19 +13,39 @@ services:
     ports:
       - "5433:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U missa"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
+
+  pg-passwd-reset:
+    image: docker:cli
+    container_name: multiupload_pg_passwd_reset
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        echo "Resetando senha do usuário postgres via socket local (trust auth)...";
+        docker exec multiupload_postgres psql -U postgres -d multiupload -c "ALTER USER postgres WITH PASSWORD 'postgres123';" \
+          && echo "OK: senha do postgres redefinida para postgres123" \
+          || (echo "FALHOU. Veja logs acima." && exit 1);
+    restart: "no"
 
   api:
     build: .
     container_name: multiupload_api
     env_file:
-      - .env
+      - config.env
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres123
+      DB_NAME: multiupload
     volumes:
       - uploads_data:/app/uploads
     ports:
@@ -33,6 +53,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      pg-passwd-reset:
+        condition: service_completed_successfully
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/health"]
