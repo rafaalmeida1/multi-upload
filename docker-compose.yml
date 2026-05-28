@@ -15,39 +15,6 @@ services:
       timeout: 5s
       retries: 5
 
-  pg-passwd-reset:
-    image: docker:cli
-    depends_on:
-      postgres:
-        condition: service_healthy
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    entrypoint: ["sh", "-c"]
-    command:
-      - |
-        set -e
-        echo "===> Descobrindo container do postgres pelo label do compose..."
-        MY_ID=$$(hostname)
-        echo "Meu container ID: $$MY_ID"
-        PROJECT=$$(docker inspect -f '{{ index .Config.Labels "com.docker.compose.project" }}' "$$MY_ID")
-        echo "Projeto compose detectado: $$PROJECT"
-        PG_CONTAINER=$$(docker ps -q \
-          --filter "label=com.docker.compose.project=$$PROJECT" \
-          --filter "label=com.docker.compose.service=postgres" | head -1)
-        if [ -z "$$PG_CONTAINER" ]; then
-          echo "ERRO: container do postgres não encontrado no projeto $$PROJECT"
-          echo "Containers existentes:"
-          docker ps --format '{{.Names}}'
-          exit 1
-        fi
-        PG_NAME=$$(docker inspect -f '{{.Name}}' "$$PG_CONTAINER" | sed 's|^/||')
-        echo "Container postgres encontrado: $$PG_NAME"
-        echo "===> Resetando senha via socket local (trust auth)..."
-        docker exec "$$PG_CONTAINER" psql -U postgres -d multiupload \
-          -c "ALTER USER postgres WITH PASSWORD 'postgres123';"
-        echo "===> OK: senha do postgres redefinida para postgres123"
-    restart: "no"
-
   api:
     build: .
     env_file:
@@ -65,8 +32,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      pg-passwd-reset:
-        condition: service_completed_successfully
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/health"]
