@@ -1,7 +1,6 @@
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: multiupload_postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres123
@@ -18,7 +17,6 @@ services:
 
   pg-passwd-reset:
     image: docker:cli
-    container_name: multiupload_pg_passwd_reset
     depends_on:
       postgres:
         condition: service_healthy
@@ -27,15 +25,31 @@ services:
     entrypoint: ["sh", "-c"]
     command:
       - |
-        echo "Resetando senha do usuário postgres via socket local (trust auth)...";
-        docker exec multiupload_postgres psql -U postgres -d multiupload -c "ALTER USER postgres WITH PASSWORD 'postgres123';" \
-          && echo "OK: senha do postgres redefinida para postgres123" \
-          || (echo "FALHOU. Veja logs acima." && exit 1);
+        set -e
+        echo "===> Descobrindo container do postgres pelo label do compose..."
+        MY_ID=$$(hostname)
+        echo "Meu container ID: $$MY_ID"
+        PROJECT=$$(docker inspect -f '{{ index .Config.Labels "com.docker.compose.project" }}' "$$MY_ID")
+        echo "Projeto compose detectado: $$PROJECT"
+        PG_CONTAINER=$$(docker ps -q \
+          --filter "label=com.docker.compose.project=$$PROJECT" \
+          --filter "label=com.docker.compose.service=postgres" | head -1)
+        if [ -z "$$PG_CONTAINER" ]; then
+          echo "ERRO: container do postgres não encontrado no projeto $$PROJECT"
+          echo "Containers existentes:"
+          docker ps --format '{{.Names}}'
+          exit 1
+        fi
+        PG_NAME=$$(docker inspect -f '{{.Name}}' "$$PG_CONTAINER" | sed 's|^/||')
+        echo "Container postgres encontrado: $$PG_NAME"
+        echo "===> Resetando senha via socket local (trust auth)..."
+        docker exec "$$PG_CONTAINER" psql -U postgres -d multiupload \
+          -c "ALTER USER postgres WITH PASSWORD 'postgres123';"
+        echo "===> OK: senha do postgres redefinida para postgres123"
     restart: "no"
 
   api:
     build: .
-    container_name: multiupload_api
     env_file:
       - config.env
     environment:
