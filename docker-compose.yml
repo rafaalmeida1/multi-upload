@@ -2,18 +2,52 @@ services:
   postgres:
     image: postgres:15-alpine
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres123
-      POSTGRES_DB: multiupload
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
+      POSTGRES_DB: ${DB_NAME:-multiupload}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 5
+
+  pg-passwd-sync:
+    image: docker:cli
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres123}
+      DB_NAME: ${DB_NAME:-multiupload}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        set -e
+        echo "===> Sincronizando senha do banco com a env var DB_PASSWORD..."
+        MY_ID=$$(hostname)
+        PROJECT=$$(docker inspect -f '{{ index .Config.Labels "com.docker.compose.project" }}' "$$MY_ID")
+        PG_CONTAINER=$$(docker ps -q \
+          --filter "label=com.docker.compose.project=$$PROJECT" \
+          --filter "label=com.docker.compose.service=postgres" | head -1)
+        if [ -z "$$PG_CONTAINER" ]; then
+          echo "ERRO: container postgres não encontrado no projeto $$PROJECT"
+          docker ps --format '{{.Names}}'
+          exit 1
+        fi
+        echo "Container postgres: $$(docker inspect -f '{{.Name}}' "$$PG_CONTAINER" | sed 's|^/||')"
+        echo "Aplicando ALTER USER $$DB_USER WITH PASSWORD '<hidden>' no banco $$DB_NAME..."
+        docker exec -e PGUSER="$$DB_USER" -e PGPASSWORD_NEW="$$DB_PASSWORD" "$$PG_CONTAINER" \
+          psql -U "$$DB_USER" -d "$$DB_NAME" \
+          -c "ALTER USER \"$$DB_USER\" WITH PASSWORD '$$DB_PASSWORD';"
+        echo "===> OK: senha sincronizada."
+    restart: "no"
 
   api:
     build: .
@@ -22,9 +56,9 @@ services:
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres123
-      DB_NAME: multiupload
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres123}
+      DB_NAME: ${DB_NAME:-multiupload}
     volumes:
       - uploads_data:/app/uploads
     ports:
@@ -32,6 +66,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      pg-passwd-sync:
+        condition: service_completed_successfully
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/health"]
