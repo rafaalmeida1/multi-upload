@@ -22,6 +22,7 @@ type Config struct {
 	ContactEmail string
 	FromEmail    string
 	FromName     string
+	ExportToken  string
 }
 
 func Load() *Config {
@@ -42,6 +43,7 @@ func Load() *Config {
 		ContactEmail: getEnv("CONTACT_EMAIL", "comercialjam@zohomail.com"),
 		FromEmail:    getEnv("FROM_EMAIL", "comercialjam@zohomail.com"),
 		FromName:     getEnv("FROM_NAME", "JAM Locação de Guindastes"),
+		ExportToken:  getEnv("EXPORT_TOKEN", ""),
 	}
 }
 

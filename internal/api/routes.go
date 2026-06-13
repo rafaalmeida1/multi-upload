@@ -25,6 +25,7 @@ func SetupRoutes(router *gin.Engine, db *sql.DB, cfg *config.Config) {
 	authHandler := handlers.NewAuthHandler(userRepo, jwtService)
 	mediaHandler := handlers.NewMediaHandler(mediaRepo, cfg.UploadPath)
 	contactHandler := handlers.NewContactHandler(emailService)
+	exportHandler := handlers.NewExportHandler(mediaRepo, cfg.UploadPath, cfg.ExportToken)
 
 	// Rotas públicas
 	public := router.Group("/api/v1")
@@ -40,6 +41,15 @@ func SetupRoutes(router *gin.Engine, db *sql.DB, cfg *config.Config) {
 
 		// Galeria pública de mídias
 		public.GET("/gallery", mediaHandler.ListPublic)
+
+		// Endpoints de export (para migração / backup completo).
+		// Protegidos pelo header X-Export-Token quando EXPORT_TOKEN está setado.
+		export := public.Group("/export")
+		{
+			export.GET("/manifest", exportHandler.Manifest)
+			export.GET("/stats", exportHandler.Stats)
+			export.GET("/file/:id", exportHandler.File)
+		}
 	}
 
 	// Rotas protegidas

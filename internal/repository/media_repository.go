@@ -225,6 +225,83 @@ func (r *MediaRepository) Delete(id int, userID int) error {
 	return err
 }
 
+// ListAll devolve TODOS os registros de media sem paginação. Usado para
+// export/migração — não chame em rotas públicas com grandes volumes sem
+// considerar memória.
+func (r *MediaRepository) ListAll() ([]models.Media, error) {
+	query := `SELECT id, user_id, filename, original_name, file_path, file_size,
+			  mime_type, media_type, sort_order, created_at, updated_at
+			  FROM media ORDER BY id ASC`
+
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var medias []models.Media
+	for rows.Next() {
+		var media models.Media
+		if err := rows.Scan(
+			&media.ID, &media.UserID, &media.Filename, &media.OriginalName,
+			&media.FilePath, &media.FileSize, &media.MimeType, &media.MediaType,
+			&media.SortOrder, &media.CreatedAt, &media.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		medias = append(medias, media)
+	}
+	return medias, nil
+}
+
+// Stats retorna contagem, soma de bytes e quebra por tipo.
+func (r *MediaRepository) Stats() (int64, int64, map[string]int64, error) {
+	var count, totalBytes int64
+	err := r.db.QueryRow(
+		`SELECT COUNT(*), COALESCE(SUM(file_size), 0) FROM media`,
+	).Scan(&count, &totalBytes)
+	if err != nil {
+		return 0, 0, nil, err
+	}
+
+	byType := map[string]int64{}
+	rows, err := r.db.Query(
+		`SELECT media_type, COUNT(*) FROM media GROUP BY media_type`,
+	)
+	if err != nil {
+		return 0, 0, nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var t string
+		var n int64
+		if err := rows.Scan(&t, &n); err != nil {
+			return 0, 0, nil, err
+		}
+		byType[t] = n
+	}
+	return count, totalBytes, byType, nil
+}
+
+// GetByIDPublic busca uma mídia pelo ID sem filtrar por usuário.
+// Usado pelo export handler.
+func (r *MediaRepository) GetByIDPublic(id int) (*models.Media, error) {
+	query := `SELECT id, user_id, filename, original_name, file_path, file_size,
+			  mime_type, media_type, sort_order, created_at, updated_at
+			  FROM media WHERE id = $1`
+
+	media := &models.Media{}
+	err := r.db.QueryRow(query, id).Scan(
+		&media.ID, &media.UserID, &media.Filename, &media.OriginalName,
+		&media.FilePath, &media.FileSize, &media.MimeType, &media.MediaType,
+		&media.SortOrder, &media.CreatedAt, &media.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return media, nil
+}
+
 // UpdateSortOrders atualiza a ordem de múltiplas mídias
 func (r *MediaRepository) UpdateSortOrders(userID int, mediaIDs []int) error {
 	tx, err := r.db.Begin()

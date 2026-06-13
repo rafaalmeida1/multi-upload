@@ -319,6 +319,45 @@ Atualiza a ordem de múltiplos arquivos.
 
 ---
 
+## 📦 Export / Backup completo (para migração)
+
+Para baixar **TODAS** as mídias de uma vez (manifest JSON + arquivos), use os
+endpoints de export ou o script `scripts/download_all.sh`.
+
+### Endpoints
+
+| Método | Path | O que faz |
+|---|---|---|
+| `GET` | `/api/v1/export/manifest` | JSON com TODOS os registros de media (sem paginação) |
+| `GET` | `/api/v1/export/stats`    | contagem, soma de bytes e quebra por tipo |
+| `GET` | `/api/v1/export/file/:id` | serve o arquivo daquele ID (atalho do `/files/...`) |
+
+Se você definir `EXPORT_TOKEN` em `config.env`, esses endpoints exigem o header
+`X-Export-Token: <token>` (ou query string `?token=...`). Vazio = público (use
+apenas em LAN/local).
+
+### Script de download em massa
+
+```bash
+# Baixa manifest + todos os arquivos em ./export/
+API_URL=https://api-antiga.exemplo.com \
+EXPORT_TOKEN=seu-token \
+  ./scripts/download_all.sh ./export
+
+# Saída:
+#  ./export/manifest.json
+#  ./export/stats.json
+#  ./export/files/2024/01/01/<uuid>.jpg ...
+```
+
+- Idempotente: já existe e tem o mesmo tamanho? pula.
+- `CONCURRENCY=12 ./scripts/download_all.sh ./export` para baixar mais rápido.
+
+Para subir tudo no novo sistema (Cloudflare Worker), use o
+`app_multi_upload_cf/scripts/migrate.mjs`.
+
+---
+
 ## 🖼️ Galeria Pública
 
 ### GET /gallery
